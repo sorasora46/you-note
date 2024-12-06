@@ -1,5 +1,6 @@
 package me.sora.younote.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,6 +11,7 @@ import me.sora.younote.constant.ServiceConstant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class CommonResponse<T> {
     private Boolean status;
     private T result;
