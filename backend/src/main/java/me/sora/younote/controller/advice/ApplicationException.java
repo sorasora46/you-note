@@ -2,23 +2,31 @@ package me.sora.younote.controller.advice;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.http.HttpStatus;
 
 import java.io.Serial;
+
+import static me.sora.younote.constant.ErrorConstant.ErrorCode.ERROR_CODE_UNABLE_TO_PROCEED;
+import static me.sora.younote.constant.ServiceConstant.ResponseStatus.SERVER_ERROR;
 
 @Getter
 @Setter
 public class ApplicationException extends RuntimeException {
     @Serial
     private static final long serialVersionUID = 1L;
-    private HttpStatus httpStatus;
+    private Integer status;
+    private Integer code;
 
     public ApplicationException(String message) {
-        this(message, HttpStatus.INTERNAL_SERVER_ERROR);
+        this(SERVER_ERROR, ERROR_CODE_UNABLE_TO_PROCEED, message);
     }
 
-    public ApplicationException(String message, HttpStatus httpStatus) {
+    public ApplicationException(Integer code, String message) {
+        this(SERVER_ERROR, code, message);
+    }
+
+    public ApplicationException(Integer status, Integer code, String message) {
         super(message);
-        this.httpStatus = httpStatus;
+        this.status = status;
+        this.code = code;
     }
 }
