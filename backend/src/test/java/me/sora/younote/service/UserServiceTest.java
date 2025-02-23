@@ -1,6 +1,5 @@
 package me.sora.younote.service;
 
-import me.sora.younote.constant.ErrorConstant;
 import me.sora.younote.controller.advice.ApplicationException;
 import me.sora.younote.entity.User;
 import me.sora.younote.repository.UserRepository;
@@ -11,10 +10,13 @@ import org.mockito.Mock;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
 
 import java.util.Optional;
 import java.util.UUID;
+
+import static me.sora.younote.constant.ErrorConstant.ErrorCode.ERROR_CODE_USER_NOT_FOUND;
+import static me.sora.younote.constant.ErrorConstant.ErrorMessage.ERROR_MESSAGE_USER_NOT_FOUND;
+import static me.sora.younote.constant.ServiceConstant.ResponseStatus.SERVICE_ERROR;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -40,19 +42,20 @@ public class UserServiceTest {
 
         // Then
         var response = userService.getUserByUserId(userId);
+        var data = response.getData();
         Assertions.assertNotNull(response);
-        Assertions.assertEquals(userId, response.getId());
-        Assertions.assertEquals(user.getFirstName(), response.getFirstName());
-        Assertions.assertEquals(user.getLastName(), response.getLastName());
-        Assertions.assertEquals(user.getEmail(), response.getEmail());
+        Assertions.assertNotNull(data);
+        Assertions.assertEquals(userId, data.getId());
+        Assertions.assertEquals(user.getFirstName(), data.getFirstName());
+        Assertions.assertEquals(user.getLastName(), data.getLastName());
+        Assertions.assertEquals(user.getEmail(), data.getEmail());
     }
 
     @Test
     void whenCallingGetUserByUserId_thenReturnException() {
         // Given
         var userId = UUID.randomUUID();
-        var message = ErrorConstant.USER_NOT_FOUND + ":" + userId;
-        var exception = new ApplicationException(message, HttpStatus.NOT_FOUND);
+        var exception = new ApplicationException(SERVICE_ERROR, ERROR_CODE_USER_NOT_FOUND, ERROR_MESSAGE_USER_NOT_FOUND);
 
         // When
         Mockito.when(userRepository.findById(Mockito.any(UUID.class))).thenThrow(exception);
@@ -60,7 +63,8 @@ public class UserServiceTest {
         // Then
         var response = Assertions.assertThrows(ApplicationException.class, () -> userService.getUserByUserId(userId));
         Assertions.assertNotNull(response);
-        Assertions.assertEquals(message, response.getMessage());
-        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getHttpStatus());
+        Assertions.assertEquals(SERVICE_ERROR, response.getStatus());
+        Assertions.assertEquals(ERROR_CODE_USER_NOT_FOUND, response.getCode());
+        Assertions.assertEquals(ERROR_MESSAGE_USER_NOT_FOUND, response.getMessage());
     }
 }
